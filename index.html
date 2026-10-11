@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Shanghai Trip">
@@ -160,7 +161,7 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
 </style>
 <div class="wrap">
   <header class="top">
-    <div class="brand">Shanghai · VCT Champions<small>Oct 13-19, 2026</small></div>
+    <div class="brand">Shanghai · VCT Champions<small>Oct 13-19, 2026 · updated Oct 11, 2:00pm</small></div>
     <div class="hdr-right">
       <div class="clock"><b id="clkSH">--:--</b>Shanghai · <span id="clkSEA">Seattle --:--</span></div>
       <button class="fxbtn" id="fxToggle" aria-expanded="false" aria-controls="fx">¥ ⇄ $</button>
@@ -240,7 +241,6 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
 <script>
 const PID=id=>"https://www.google.com/maps/place/?q=place_id:"+id;
 const GQ=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
-const RN=k=>"https://www.xiaohongshu.com/search_result?keyword="+encodeURIComponent(k);
 const AM=q=>"https://maps.apple.com/?q="+encodeURIComponent(q);
 const AMNEAR=(q,ll)=>`https://maps.apple.com/?q=${encodeURIComponent(q)}&sll=${ll[0]},${ll[1]}&z=16`;
 
@@ -481,6 +481,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.que
  document.addEventListener("visibilitychange",()=>{if(!document.hidden){const d=pickDefaultDay();if(DAYS[d].d===shNow().date)sel=d;renderAll()}});
 })();
 </script>
+
 
 
 
