@@ -161,7 +161,7 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
 </style>
 <div class="wrap">
   <header class="top">
-    <div class="brand">Shanghai · VCT Champions<small>Oct 13-19, 2026 · updated Oct 11, 2:15pm</small></div>
+    <div class="brand">Shanghai · VCT Champions<small>Oct 13-19, 2026 · updated Oct 11, 2:20pm</small></div>
     <div class="hdr-right">
       <div class="clock"><b id="clkSH">--:--</b>Shanghai · <span id="clkSEA">Seattle --:--</span></div>
       <button class="fxbtn" id="fxToggle" aria-expanded="false" aria-controls="fx">¥ ⇄ $</button>
@@ -210,7 +210,7 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
     <h3 class="sec">Good to know</h3>
     <ul class="tips">
       <li>Load this page on your eSIM or roaming data. Some local wifi in China blocks overseas sites, so switch wifi off if it won't load.</li>
-      <li>Amap buttons open the place in the Amap app. Set Amap to English before you fly. For reviews, use Dianping inside WeChat (Discover → Mini Programs → Dianping, then ⋯ → translate).</li>
+      <li>Amap buttons open the place in Amap (set it to English). Dianping buttons open a search in the Dianping app for ratings and photos. Install both before you fly, or the buttons do nothing.</li>
       <li>Pay with Alipay. DiDi rides are inside Alipay too. Carry about ¥500 cash as backup.</li>
       <li>Leaving the arena: walk 10-15 min away before calling a DiDi, or take Metro Line 8.</li>
       <li>Ignore friendly strangers near Nanjing Rd and the Bund inviting you to tea or a bar.</li>
@@ -242,7 +242,12 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
 const PID=id=>"https://www.google.com/maps/place/?q=place_id:"+id;
 const GQ=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
 const AM=q=>"https://maps.apple.com/?q="+encodeURIComponent(q);
-const AMAP=(q,ll)=>`https://uri.amap.com/search?keyword=${encodeURIComponent(q)}${ll?`&center=${ll[1]},${ll[0]}`:""}&city=310000&view=list&src=shanghaitrip&callnative=1`;
+const DP=q=>"dianping://searchshoplist?keyword="+encodeURIComponent(q);
+const UA=navigator.userAgent||"";const IOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);const ANDROID=/Android/.test(UA);
+const AMAP=(q,ll)=>{const k=encodeURIComponent(q),d=0.02;
+ if(IOS)return `iosamap://poi?sourceApplication=ShanghaiTrip&name=${k}${ll?`&lat1=${(ll[0]+d).toFixed(4)}&lon1=${(ll[1]-d).toFixed(4)}&lat2=${(ll[0]-d).toFixed(4)}&lon2=${(ll[1]+d).toFixed(4)}`:""}&dev=0`;
+ if(ANDROID)return `androidamap://poi?sourceApplication=ShanghaiTrip&keywords=${k}&dev=0`;
+ return `https://uri.amap.com/search?keyword=${k}${ll?`&center=${ll[1]},${ll[0]}`:""}&city=310000&view=list&src=shanghaitrip&callnative=1`};
 
 const HOTEL={name:"Upper House Shanghai",zh:"静安区石门一路366号",pid:"ChIJc04BZUlwsjURbjVHMGtIdQs",ll:[31.2304,121.4627]};
 const ARENA={zh:"浦东新区世博大道1200号 梅赛德斯-奔驰文化中心",g:"Mercedes-Benz Arena Shanghai",rn:"梅赛德斯奔驰文化中心",ll:[31.1890,121.4930]};
@@ -377,11 +382,11 @@ function plan(day){const off=late[day.d]||0;const m=matchT[day.d]||day.mt;
 
 function links(o){const out=[];
  if(o.zh)out.push(`<button class="drv" data-zh="${esc(o.zh)}" data-en="${esc(o.name)}">Show driver</button>`);
- if(o.pid||o.g)out.push(`<a href="${o.pid?PID(o.pid):GQ(o.g)}" target="_blank" rel="noopener">Google</a>`);
  if(o.zh)out.push(`<a href="${AM(o.zh)}" target="_blank" rel="noopener">Apple Maps</a>`);
- if(o.rn||o.zh)out.push(`<a href="${AMAP(o.rn||o.zh,o.ll)}" target="_blank" rel="noopener">Amap</a>`);
+ if(o.rn||o.zh)out.push(`<a href="${AMAP(o.rn||o.zh,o.ll)}"${IOS||ANDROID?"":` target="_blank" rel="noopener"`}>Amap</a>`);
+ if(o.rn)out.push(`<a href="${DP(o.rn)}">Dianping</a>`);
  return out.join("")}
-const near=ll=>ll?`<div class="near"><a href="${AMAP("咖啡",ll)}" target="_blank" rel="noopener">☕ Coffee near here</a><a href="${AMAP("小吃",ll)}" target="_blank" rel="noopener">Food near here</a><a href="${AMAP("厕所",ll)}" target="_blank" rel="noopener">Restroom</a></div>`:"";
+const near=ll=>ll?`<div class="near"><a href="${AMAP("咖啡",ll)}">☕ Coffee near here</a><a href="${AMAP("小吃",ll)}">Food near here</a><a href="${AMAP("厕所",ll)}">Restroom</a></div>`:"";
 const badge=t=>t==="val"?'<span class="badge val">VALORANT</span>':t==="food"?'<span class="badge food">Food</span>':"";
 
 function pickDefaultDay(){const n=shNow();const i=DAYS.findIndex(d=>d.d===n.date);if(i>=0)return i;if(n.date<DAYS[0].d)return 1;return DAYS.length-1}
@@ -480,6 +485,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.que
  document.addEventListener("visibilitychange",()=>{if(!document.hidden){const d=pickDefaultDay();if(DAYS[d].d===shNow().date)sel=d;renderAll()}});
 })();
 </script>
+
 
 
 
