@@ -154,6 +154,9 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
 .fab .zh{font-size:14px}
 @media (min-width:600px){.fab{right:calc(50% - 280px + 16px)}}
 .driver .tip{font-size:13px;color:var(--muted);max-width:36ch}
+.sos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 10px}
+.sos a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border-radius:14px;background:var(--accent);color:#fff;text-decoration:none;font:600 12px/1.2 var(--body)}
+.sos a b{font:800 24px/1 var(--mono)}
 </style>
 <div class="wrap">
   <header class="top">
@@ -195,6 +198,11 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
 
   <section class="page" id="p-info">
     <h2 class="dayhead">Trip info</h2>
+    <h3 class="sec" style="margin-top:0">Emergency</h3>
+    <div class="sos"><a href="tel:110"><b>110</b>Police</a><a href="tel:120"><b>120</b>Ambulance</a><a href="tel:119"><b>119</b>Fire</a></div>
+    <p class="daysub">Operators may not speak English. Lead with the address in Chinese, or have the hotel call: <a href="tel:+862132168199">+86 21 3216 8199</a>.</p>
+    <div class="list" id="emer"></div>
+    <h3 class="sec">Trip details</h3>
     <dl class="kv" id="kv"></dl>
     <h3 class="sec">VALORANT around the city</h3>
     <div class="list" id="val"></div>
@@ -228,7 +236,6 @@ li.stop.atrisk .name::after{content:"won't fit";font:700 10px/1 var(--body);text
   <div class="row"><button id="drvCopy">Copy address</button><button id="drvClose">Close</button></div>
 </div>
 <div class="toast" id="toast" hidden></div>
-
 <script>
 const PID=id=>"https://www.google.com/maps/place/?q=place_id:"+id;
 const GQ=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
@@ -238,7 +245,7 @@ const AMNEAR=(q,ll)=>`https://maps.apple.com/?q=${encodeURIComponent(q)}&sll=${l
 
 const HOTEL={name:"Upper House Shanghai",zh:"静安区石门一路366号",pid:"ChIJc04BZUlwsjURbjVHMGtIdQs",ll:[31.2304,121.4627]};
 const ARENA={zh:"浦东新区世博大道1200号 梅赛德斯-奔驰文化中心",g:"Mercedes-Benz Arena Shanghai",rn:"梅赛德斯奔驰文化中心",ll:[31.1890,121.4930]};
-const PVG={zh:"浦东国际机场 1号航站楼",g:"Shanghai Pudong International Airport Terminal 1",ll:[31.1508,121.8030]};
+const PVG={zh:"浦东新区迎宾大道6000号 浦东国际机场 1号航站楼",g:"Shanghai Pudong International Airport Terminal 1",ll:[31.1508,121.8030]};
 const PP={zh:"人民公园 南京西路231号",pid:"ChIJCyKw82pwsjURaeSnC8R9EXI",rn:"人民公园",ll:[31.2322,121.4732]};
 
 /* go = [minutes, how] = travel from the previous stop. fixed = time doesn't move when running late. cut = first to drop. arena = match time can override. */
@@ -277,38 +284,37 @@ const DAYS=[
  {name:"Shanghai Lao Fan Dian",zh:"上海老饭店 福佑路242号",pid:"ChIJAXOm_V9wsjURdZR3dvas02Y",rn:"上海老饭店 福佑路",note:"Since 1875, at Yu Garden. 10am-10pm."},
  {name:"Qingmeiju (beef noodles)",zh:"凤阳路313号",pid:"ChIJe4FZIkBwsjUR4SXvCIPaDNY",rn:"凤阳路313号 牛肉面",note:"By People's Park, fast and local. 10:30am-10pm."},
  {name:"Lu Bo Lang",zh:"绿波廊 豫园",pid:"ChIJabgXJdz_sjURVie4J6XMjWI",rn:"绿波廊 豫园",note:"Pond view, pricey. 7am-10pm."}]},
-{d:"2026-10-16",lbl:"Fri",title:"Shops → Pudong → Semis",sub:"French Concession shopping, then the towers up close, then the arena.",sunset:"5:25",carry:"Event badge, phone battery pack",match:1,stops:[
- {t:"09:00",name:"Zhangyuan",zh:"张园 泰兴路",pid:"ChIJ48y1BhFwsjURfLdfOFXaK5M",rn:"张园",ll:[31.2280,121.4601],go:[5,"Walk across the street"],note:"1880s shikumen lanes, now design and fashion shops."},
- {t:"10:30",name:"Julu → Changle → Xinle Rd",zh:"巨鹿路 长乐路 新乐路",g:"Changle Road Shanghai",rn:"长乐路 新乐路 买手店",ll:[31.2160,121.4560],go:[15,"Walk"],note:"Indie boutiques, vintage, sneakers, coffee. Most open 10-11am."},
- {t:"12:30",name:"Lunch along the way",tag:"food",ll:[31.2160,121.4560],note:"See Friday lunch picks below."},
- {t:"13:45",cut:1,name:"Tianzifang",zh:"田子坊 泰康路210弄",g:"Tianzifang Shanghai",rn:"田子坊",ll:[31.2085,121.4690],go:[15,"DiDi, or Metro Line 9"],note:"Maze of tiny shops, studios and bars."},
- {t:"15:15",name:"Lujiazui riverside",zh:"陆家嘴滨江大道",g:"Lujiazui Riverside Promenade Shanghai",rn:"陆家嘴滨江大道",ll:[31.2385,121.5000],go:[25,"Metro Line 9 → Line 2, or DiDi"],note:"The towers from directly underneath."},
- {t:"16:30",fixed:1,arena:1,name:"Arena · Semifinals",tag:"val",...ARENA,go:[20,"DiDi"],note:"After the match, walk away from the arena before calling a DiDi."}],
+{d:"2026-10-16",lbl:"Fri",title:"Shops, then a double header",sub:"Upper Bracket Final at 2pm, Lower Bracket Semis at 5pm. Mornings only, so leave for the arena by 12:45.",sunset:"5:25",carry:"Event badge, phone battery pack",match:1,mt:"14:00",stops:[
+ {t:"09:00",name:"Zhangyuan",zh:"张园 泰兴路",pid:"ChIJ48y1BhFwsjURfLdfOFXaK5M",rn:"张园",ll:[31.2280,121.4601],go:[5,"Walk across the street"],note:"1880s shikumen lanes. Shops open around 10, so the lanes are the point this early."},
+ {t:"10:00",name:"Julu → Changle → Xinle Rd",zh:"巨鹿路 长乐路 新乐路",g:"Changle Road Shanghai",rn:"长乐路 新乐路 买手店",ll:[31.2160,121.4560],go:[15,"Walk"],note:"Indie boutiques, vintage, sneakers, coffee. Most open 10-11am."},
+ {t:"11:45",name:"Feng Ba Noodles",tag:"food",zh:"陕西南路29号",pid:"ChIJjcNDVA9wsjURrCQwV-rkA74",rn:"陕西南路29号 面馆",ll:[31.2190,121.4580],go:[10,"Walk"],note:"Early lunch to beat the noon rush. Scallion noodles + pork chop. Listed on Google as Xiaolin Noodle."},
+ {t:"13:15",fixed:1,arena:1,name:"Arena · UB Final + LB Semis",tag:"val",...ARENA,go:[30,"DiDi, or Metro Line 13 from Huaihai Middle Rd"],note:"Two Bo3s: 2pm and 5pm. Expect to be here until 8-9pm."},
+ {t:"21:00",cut:1,name:"Lujiazui riverside (optional)",zh:"陆家嘴滨江大道",g:"Lujiazui Riverside Promenade Shanghai",rn:"陆家嘴滨江大道",ll:[31.2385,121.5000],go:[15,"DiDi, walk away from the arena first"],note:"The towers lit up from directly underneath, if you have legs left."}],
  lunch:[
- {name:"Feng Ba Noodles",zh:"陕西南路29号",pid:"ChIJjcNDVA9wsjURrCQwV-rkA74",rn:"陕西南路29号 面馆",note:"Scallion noodles + grilled pork chop. Listed as Xiaolin Noodle. Hours not posted."},
- {name:"Longtang Noodles",zh:"弄堂面馆 威海路665号",pid:"ChIJdZ_EJBBwsjUR1fNZINGcFdA",rn:"弄堂面馆 威海路665号",note:"Liver noodles, pork cutlet. Hours not posted."},
- {name:"Xibo (Xinjiang)",zh:"常熟路83号",pid:"ChIJH8ea7ap6sjURJBDEA-HKELQ",rn:"常熟路83号 新疆菜",note:"Lamb skewers, terrace. Noon-2:30pm."}]},
-{d:"2026-10-17",lbl:"Sat",title:"Marriage market + VALORANT",sub:"The weekend marriage market, Riot's Jing'an activations, then Fanfest by the arena.",sunset:"5:24",carry:"Event badge, cash for Pop Mart",match:1,stops:[
- {t:"09:30",name:"DOE themed café",tag:"val",zh:"铜仁路78号",g:"DOE 铜仁路78号 Shanghai",rn:"DOE 铜仁路",ll:[31.2275,121.4505],go:[10,"Walk"],note:"VALORANT drinks. Opens 10am per Riot's sheet."},
- {t:"11:00",name:"People's Park marriage market",...PP,rn:"人民公园 相亲角",go:[15,"Metro Line 2 or DiDi"],note:"Weekends, late morning. Look, don't photograph faces."},
- {t:"12:30",name:"Di Shui Dong",tag:"food",zh:"滴水洞 茂名南路56号",pid:"ChIJjeHh2w5wsjUR9hQ4sr9Kv2Q",rn:"滴水洞 茂名南路",ll:[31.2212,121.4601],go:[12,"DiDi"],note:"Lunch. Hunan, dry-rub ribs. Opens 10:30am."},
- {t:"13:45",name:"Champions pop-up + Pop Mart",tag:"val",zh:"西藏北路166号 静安大悦城南座",g:"Jing'an Joy City Shanghai",rn:"静安大悦城 无畏契约",ll:[31.2445,121.4730],go:[15,"DiDi"],note:"Official merch. Pop Mart collab is shop S102."},
- {t:"15:00",cut:1,name:"VALORANT Concept PC Bang",tag:"val",zh:"永源路6号 B115",g:"永源路6号 Shanghai",rn:"无畏契约 网吧 巴黎世家",ll:[31.2265,121.4470],go:[15,"DiDi"],note:"Balenciaga-designed PC bang. Opens 3pm."},
- {t:"16:15",cut:1,name:"Fanfest + Sage statue",tag:"val",zh:"前滩休闲公园",g:"Qiantan Leisure Park Shanghai",rn:"前滩休闲公园 无畏契约",ll:[31.1610,121.4880],go:[35,"DiDi"],note:"Arena next door."},
- {t:"18:00",fixed:1,arena:1,name:"Arena · Semifinals",tag:"val",...ARENA,go:[10,"Walk or short DiDi"],note:"Placeholder time. Set the real match time above."}],
+ {name:"Feng Ba Noodles",zh:"陕西南路29号",pid:"ChIJjcNDVA9wsjURrCQwV-rkA74",rn:"陕西南路29号 面馆",note:"The plan. Scallion noodles + grilled pork chop. Listed as Xiaolin Noodle. Hours not posted."},
+ {name:"Longtang Noodles",zh:"弄堂面馆 威海路665号",pid:"ChIJdZ_EJBBwsjUR1fNZINGcFdA",rn:"弄堂面馆 威海路665号",note:"Liver noodles, pork cutlet. Near Zhangyuan. Hours not posted."}]},
+{d:"2026-10-17",lbl:"Sat",title:"VALORANT in Jing'an + marriage market",sub:"Lower Bracket Final is a Bo5 at 3pm. Be at the arena by 2:15 and expect to stay until 7-8pm.",sunset:"5:24",carry:"Event badge, cash for Pop Mart",match:1,mt:"15:00",stops:[
+ {t:"09:00",name:"Breakfast near the hotel",tag:"food",ll:HOTEL.ll,note:"See the Food tab."},
+ {t:"10:00",name:"DOE themed café",tag:"val",zh:"铜仁路78号",g:"DOE 铜仁路78号 Shanghai",rn:"DOE 铜仁路",ll:[31.2275,121.4505],go:[10,"Walk"],note:"VALORANT drinks. Opens 10am."},
+ {t:"10:45",name:"Champions pop-up + Pop Mart",tag:"val",zh:"西藏北路166号 静安大悦城南座",g:"Jing'an Joy City Shanghai",rn:"静安大悦城 无畏契约",ll:[31.2445,121.4730],go:[15,"DiDi"],note:"Official merch. Pop Mart collab is shop S102."},
+ {t:"11:45",cut:1,name:"People's Park marriage market",...PP,rn:"人民公园 相亲角",go:[10,"DiDi"],note:"Weekends only. Look, don't photograph faces."},
+ {t:"12:30",name:"Jia Jia Tang Bao",tag:"food",zh:"佳家汤包 黄河路90号",pid:"ChIJA5s-SUBwsjURFhARLaLPojs",rn:"佳家汤包 黄河路",ll:[31.2365,121.4705],go:[5,"Walk"],note:"Lunch. Soup dumplings, quick. 9am-9:30pm."},
+ {t:"14:15",fixed:1,arena:1,name:"Arena · Lower Bracket Final",tag:"val",...ARENA,go:[35,"Metro Line 8 from People's Square to China Art Museum + 15 min walk, or DiDi"],note:"Bo5. Could run 4-5 hours."},
+ {t:"20:00",cut:1,name:"Fanfest at night (optional)",tag:"val",zh:"前滩休闲公园",g:"Qiantan Leisure Park Shanghai",rn:"前滩休闲公园 无畏契约",ll:[31.1610,121.4880],go:[10,"DiDi"],note:"Open until midnight. Quieter than the daytime crowd."}],
  lunch:[
- {name:"Di Shui Dong",zh:"滴水洞 茂名南路56号",pid:"ChIJjeHh2w5wsjUR9hQ4sr9Kv2Q",rn:"滴水洞 茂名南路",note:"The plan. 10:30am-10pm."},
- {name:"Jia Jia Tang Bao",zh:"佳家汤包 黄河路90号",pid:"ChIJA5s-SUBwsjURFhARLaLPojs",rn:"佳家汤包 黄河路",note:"Soup dumplings. 9am-9:30pm."},
- {name:"Qingmeiju (beef noodles)",zh:"凤阳路313号",pid:"ChIJe4FZIkBwsjUR4SXvCIPaDNY",rn:"凤阳路313号 牛肉面",note:"10:30am-10pm."}]},
-{d:"2026-10-18",lbl:"Sun",title:"Finals day",sub:"Saturday runs late, so keep it light.",sunset:"5:23",carry:"Event badge, battery pack",match:1,stops:[
- {t:"10:00",name:"Slow breakfast",tag:"food",ll:HOTEL.ll,note:"See the Food tab for nearby coffee."},
- {t:"13:00",cut:1,name:"Valm Battle Zone",tag:"val",zh:"长宁路1123号 长宁来福士",g:"Raffles City Changning Shanghai",rn:"长宁来福士 无畏契约",ll:[31.2195,121.4210],go:[20,"Metro Line 2 to Zhongshan Park, or DiDi"],note:"VALORANT Mobile arena."},
- {t:"15:00",cut:1,name:"Taikoo Li Qiantan",zh:"前滩太古里 东育路500弄",g:"Taikoo Li Qiantan Shanghai",rn:"前滩太古里",ll:[31.1560,121.4885],go:[35,"DiDi"],note:"Open-air shops next to Fanfest. Pop Mart VALORANT collab."},
- {t:"16:30",fixed:1,arena:1,name:"Fanfest, then Finals",tag:"val",...ARENA,go:[10,"Walk or short DiDi"],note:"After: late-night VALORANT Haidilao, 北京西路1068号3层, open until 7am."}],
+ {name:"Jia Jia Tang Bao",zh:"佳家汤包 黄河路90号",pid:"ChIJA5s-SUBwsjURFhARLaLPojs",rn:"佳家汤包 黄河路",note:"The plan. Soup dumplings. 9am-9:30pm."},
+ {name:"Qingmeiju (beef noodles)",zh:"凤阳路313号",pid:"ChIJe4FZIkBwsjUR4SXvCIPaDNY",rn:"凤阳路313号 牛肉面",note:"Near the park. 10:30am-10pm."},
+ {name:"Di Shui Dong",zh:"滴水洞 茂名南路56号",pid:"ChIJjeHh2w5wsjUR9hQ4sr9Kv2Q",rn:"滴水洞 茂名南路",note:"Only if we skip the marriage market. 10:30am-10pm."}]},
+{d:"2026-10-18",lbl:"Sun",title:"Grand Final",sub:"Bo5 at 2pm, could run past 7. The whole day stays in Pudong.",sunset:"5:23",carry:"Event badge, battery pack",match:1,mt:"14:00",stops:[
+ {t:"09:30",name:"Slow breakfast",tag:"food",ll:HOTEL.ll,note:"Saturday will run late. See the Food tab."},
+ {t:"10:45",name:"Taikoo Li Qiantan",zh:"前滩太古里 东育路500弄",g:"Taikoo Li Qiantan Shanghai",rn:"前滩太古里",ll:[31.1560,121.4885],go:[35,"DiDi"],note:"Open-air shops. Pop Mart VALORANT collab."},
+ {t:"11:45",name:"Fanfest + Sage statue",tag:"val",zh:"前滩休闲公园",g:"Qiantan Leisure Park Shanghai",rn:"前滩休闲公园 无畏契约",ll:[31.1610,121.4880],go:[5,"Walk"],note:"Next door. Last chance for photos."},
+ {t:"12:30",name:"Lunch at Taikoo Li",tag:"food",zh:"前滩太古里",g:"Taikoo Li Qiantan Shanghai",rn:"前滩太古里 餐厅",ll:[31.1560,121.4885],go:[5,"Walk"],note:"Lots of restaurants. Tap Food near here."},
+ {t:"13:15",fixed:1,arena:1,name:"Arena · Grand Final",tag:"val",...ARENA,go:[10,"DiDi"],note:"Bo5. Walk away from the arena before calling a DiDi afterward."},
+ {t:"20:30",cut:1,name:"Late-night Haidilao (optional)",tag:"val",zh:"北京西路1068号3层",g:"海底捞 北京西路1068号",rn:"海底捞 北京西路 无畏契约",ll:[31.2330,121.4560],go:[40,"DiDi"],note:"VALORANT-themed store, open until 7am. Works for a team dinner."}],
  lunch:[
- {name:"Yuxing Ji",zh:"裕兴记 威海路830号",pid:"ChIJA6m1aQVwsjUR11fYsrGAhfw",rn:"裕兴记 威海路",note:"Crab roe noodles, ~¥138. Hours not posted."},
- {name:"Xiaweiguan",zh:"镇宁路9号",pid:"ChIJKxZER1FlsjURnGbV7oGFESM",rn:"镇宁路9号 本帮菜",note:"Neighborhood Shanghainese. 10:30am-2:30pm."},
- {name:"Fu 1039 (splurge)",zh:"福1039 愚园路1039号",pid:"ChIJN2IxX1llsjURLDj9Cehmbqo",rn:"福1039 愚园路",note:"Michelin-starred Shanghainese. Reserve ahead."}]},
+ {name:"Taikoo Li Qiantan",zh:"前滩太古里",g:"Taikoo Li Qiantan Shanghai",rn:"前滩太古里 餐厅",note:"The plan. Eat wherever has a short line."},
+ {name:"Yuxing Ji",zh:"裕兴记 威海路830号",pid:"ChIJA6m1aQVwsjUR11fYsrGAhfw",rn:"裕兴记 威海路",note:"Crab roe noodles, ~¥138. Only as a 10am brunch before heading east. Hours not posted."}]},
 {d:"2026-10-19",lbl:"Mon",title:"Going home",sub:"Leave by 1:30. Afternoon traffic to Pudong is unpredictable.",sunset:"5:22",carry:"Passport, chargers, nothing left in the safe",stops:[
  {t:"12:00",fixed:1,name:"Check out",...HOTEL,note:""},
  {t:"13:30",fixed:1,name:"Taxi to PVG Terminal 1",...PVG,note:"About 60 min."},
@@ -323,20 +329,27 @@ const COFFEE=[
  {name:"Coffee near the hotel",near:HOTEL.ll,note:"Apple Maps search around the hotel."}];
 
 const VAL=[
- {name:"Mercedes-Benz Arena",...ARENA,note:"Semifinals and finals, Oct 16-18."},
+ {name:"Mercedes-Benz Arena",...ARENA,note:"Fri 2pm + 5pm (Bo3s) · Sat 3pm (Bo5) · Sun 2pm Grand Final (Bo5)."},
  {name:"Fanfest + Sage statue",zh:"前滩休闲公园",g:"Qiantan Leisure Park Shanghai",rn:"前滩休闲公园 无畏契约",note:"Oct 16-18, 9am-midnight."},
  {name:"VALORANT Bing Sutt",zh:"马当路388号复兴SOHO D栋",pid:"ChIJeRamgnZwsjURuyZazCvuh7c",rn:"瓦记冰室",note:"New-agent café, Oct 10-18."},
  {name:"Speak Low",zh:"复兴中路579号",pid:"ChIJR8pziwpwsjURATf5H_7vnw4",rn:"Speak Low 上海",note:"Collab cocktails, 6pm-2:30am."},
  {name:"Champions pop-up + Pop Mart",zh:"西藏北路166号 静安大悦城南座",g:"Jing'an Joy City Shanghai",rn:"静安大悦城 无畏契约",note:"10am-10pm, through Oct 18."},
- {name:"Concept PC Bang (Balenciaga)",zh:"永源路6号 B115",g:"永源路6号 Shanghai",rn:"无畏契约 网吧 巴黎世家",note:"3-9pm, through Oct 18."},
+ {name:"Concept PC Bang (Balenciaga)",zh:"永源路6号 B115",g:"永源路6号 Shanghai",rn:"无畏契约 网吧 巴黎世家",note:"3-9pm, through Oct 18. Clashes with every match day, so likely a skip."},
  {name:"DOE themed café",zh:"铜仁路78号",g:"DOE 铜仁路78号 Shanghai",rn:"DOE 铜仁路",note:"10am-10pm. Also at Xintiandi, 湖滨路168号."},
  {name:"Haidilao late-night store",zh:"北京西路1068号3层",g:"海底捞 北京西路1068号",rn:"海底捞 北京西路 无畏契约",note:"Open until 7am per Riot's sheet."},
- {name:"Valm Battle Zone",zh:"长宁路1123号 长宁来福士",g:"Raffles City Changning Shanghai",rn:"长宁来福士 无畏契约",note:"VALORANT Mobile, Oct 16-18, 1-9pm."},
+ {name:"Valm Battle Zone",zh:"长宁路1123号 长宁来福士",g:"Raffles City Changning Shanghai",rn:"长宁来福士 无畏契约",note:"VALORANT Mobile, Oct 16-18, 1-9pm. Clashes with the matches."},
  {name:"Valsound EDM party",zh:"前耀路180号 L128",g:"前耀路180号 Shanghai",rn:"Valsound 前滩",note:"Oct 16-17, 9:30pm-2am (TBD)."}];
 
-const TAXI=[{name:"Hotel · Upper House",zh:HOTEL.zh},{name:"Arena · Mercedes-Benz",zh:ARENA.zh},{name:"Pudong Airport T1",zh:PVG.zh},{name:"Fanfest · Qiantan",zh:"浦东新区 前滩休闲公园"}];
+const EMER=[
+ {name:"Shanghai United Family Hospital · Puxi",zh:"长宁区仙霞路1139号 和睦家医院",pid:"ChIJv0lK7cdlsjURLHCiv04x09Q",tel:"+862122163900",note:"Best English-speaking ER on our side of the river. ~25 min from the hotel. Expensive."},
+ {name:"Huashan Hospital · international clinic",zh:"静安区乌鲁木齐中路12号 华山医院 国际医疗中心",pid:"ChIJzfjZ51RlsjURelOa2F-6TDc",tel:"+862152889999",note:"Closest to the hotel, ~10 min. Big public hospital, basic English."},
+ {name:"Shanghai East International Medical Center",zh:"浦东新区即墨路150号",pid:"ChIJL2slz-BwsjUREXMFBZQGT1g",tel:"+862158799999",note:"Lujiazui. Closest English-speaking option to the arena, ~15 min."},
+ {name:"Shanghai United Family Hospital · Pudong",zh:"浦东新区金桥路1598号",pid:"ChIJC3rM9vx1sjURYQXlUmDOTlE",tel:"+862122163999",note:"Far east Pudong, 35-45 min from anything. Use the others first."},
+ {name:"US Consulate · American Citizen Services",zh:"南京西路1038号 梅龙镇广场",g:"Westgate Mall 1038 Nanjing West Road Shanghai",note:"Lost or stolen passport. Westgate Mall, a few minutes' walk from the hotel. Book online first."},
+ {name:"US Consulate General",zh:"徐汇区淮海中路1469号 美国驻上海总领事馆",pid:"ChIJSzsxMUB7sjURJ22QYyGGW3A",tel:"+862180112200",note:"Main consulate, 1469 Huaihai Zhong Rd."}];
+const TAXI=[{name:"Hotel · Upper House",zh:HOTEL.zh},{name:"Arena · Mercedes-Benz",zh:ARENA.zh},{name:"Pudong Airport T1",zh:PVG.zh},{name:"Hospital · United Family Puxi",zh:"长宁区仙霞路1139号 和睦家医院"},{name:"Fanfest · Qiantan",zh:"浦东新区 前滩休闲公园"}];
 const PHR=[["你好","nee-how","Hello"],["谢谢","shyeh-shyeh","Thank you"],["不好意思","boo-how-ee-suh","Excuse me / call a server"],["这个","jeh-guh","This one"],["多少钱","dwor-shaow-chyen","How much?"],["买单","my-dan","The check, please"],["不要","boo-yow","Don't want"],["洗手间在哪里","she-show-jyen zai nah-lee","Where's the bathroom?"],["我不吃辣","wor boo chur la","I don't eat spicy"]];
-const KV=[["Out","DL281 · Mon Oct 12, 3:40pm SEA → Tue 7:50pm PVG T1"],["Back","DL280 · Mon Oct 19, 5:30pm PVG T1 → 1:11pm SEA"],["Travel desk","CWT · 763-329-2578 (24h). Booking codes are in your email."],["Hotel","Upper House Shanghai · 石门一路366号 · +86 21 3216 8199"],["Time","Shanghai is 15 hours ahead of Seattle"],["Emergency","Police 110 · Ambulance 120 · Fire 119"]];
+const KV=[["Out","DL281 · Mon Oct 12, 3:40pm SEA → Tue 7:50pm PVG T1"],["Back","DL280 · Mon Oct 19, 5:30pm PVG T1 → 1:11pm SEA"],["Travel desk","CWT · 763-329-2578 (24h). Booking codes are in your email."],["Hotel","Upper House Shanghai · 石门一路366号 · +86 21 3216 8199"],["Time","Shanghai is 15 hours ahead of Seattle"]];
 
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
@@ -353,7 +366,7 @@ let done=store.get("sh-done",{}),late=store.get("sh-late",{}),matchT=store.get("
 let sel=null;
 
 /* compute effective times for a day: shift non-fixed by "late" offset; arena stops follow the match time */
-function plan(day){const off=late[day.d]||0;const m=matchT[day.d];
+function plan(day){const off=late[day.d]||0;const m=matchT[day.d]||day.mt;
  const stops=day.stops.map(s=>{let base=toMin(s.t);let note=s.note;
   if(s.arena&&m){base=toMin(m)-45;note=`Match at ${fmtTxt(toMin(m))}. Aim to arrive 45 min early. `+(s.note.startsWith("Placeholder")?"":s.note)}
   const eff=s.fixed?base:base+off;return{...s,base,eff,note,shifted:!s.fixed&&off>0}});
@@ -409,7 +422,7 @@ function lunchHtml(list){return list.map(o=>`<div class="opt"><div class="name">
 function renderDay(){const n=shNow();const day=DAYS[sel];const stops=plan(day);const ci=currentIndex(stops,day,n);
  const chips=[`<span class="chip">Sunset <b>${day.sunset}pm</b></span>`,`<span class="chip">Carry: ${esc(day.carry)}</span>`];
  const first=stops.find(s=>s.go||s.zh);
- const matchBox=day.match?`<div class="match"><label for="mt-${day.d}"><b>Match time</b></label><input type="time" id="mt-${day.d}" value="${esc(matchT[day.d]||"")}"><span>${matchT[day.d]?`Leave for the arena by <b>${fmtTxt(toMin(matchT[day.d])-45-((stops.find(s=>s.arena)||{}).go||[0])[0])}</b>`:"Set it and the arena stop updates."}</span></div>`:"";
+ const matchBox=day.match?`<div class="match"><label for="mt-${day.d}"><b>Match time</b></label><input type="time" id="mt-${day.d}" value="${esc(matchT[day.d]||day.mt||"")}"><span>${(matchT[day.d]||day.mt)?`Leave for the arena by <b>${fmtTxt(toMin(matchT[day.d]||day.mt)-45-((stops.find(s=>s.arena)||{}).go||[0])[0])}</b>. Change it if the schedule slips.`:"Set it and the arena stop updates."}</span></div>`:"";
  const items=stops.map((s,i)=>{const key=day.d+"|"+s.t;const isDone=!!done[key];const prev=stops[i-1];
   const goLine=s.go&&i>0?`<div class="go">↳ ${esc(s.go[1])} · ~${s.go[0]} min · <span class="lb">leave by ${fmtM(s.eff-s.go[0])}</span></div>`:"";
   return `<li class="stop${i===ci?" current":""}${isDone?" isdone":""}${s.atrisk?" atrisk":""}"><div class="t">${fmtM(s.eff)}${s.shifted?`<span class="shift">+${late[day.d]}</span>`:""}</div><span class="dot" aria-hidden="true"></span><div class="card">${goLine}<div class="head"><div class="name">${esc(s.name)}${badge(s.tag)}</div><button class="chk" aria-pressed="${isDone}" aria-label="Mark ${esc(s.name)} done" data-k="${esc(key)}">✓</button></div>${s.zh?`<span class="zh">${esc(s.zh)}</span>`:""}${s.note?`<div class="note">${esc(s.note)}</div>`:""}${(s.zh||s.pid||s.g)?`<div class="actions">${links(s)}</div>`:""}${near(s.ll)}</div></li>`}).join("");
@@ -422,6 +435,7 @@ function renderStatic(){
  $("#coffee").innerHTML=lunchHtml(COFFEE);
  $("#lunchAll").innerHTML=DAYS.filter(d=>d.lunch).map(d=>`<details class="lunch"><summary>${d.lbl} ${+d.d.slice(8)} · ${esc(d.title)}</summary>${lunchHtml(d.lunch)}</details>`).join("");
  $("#val").innerHTML=lunchHtml(VAL);
+ $("#emer").innerHTML=EMER.map(o=>`<div class="opt"><div class="name">${esc(o.name)}</div><div class="zh">${esc(o.zh)}</div><div class="note">${esc(o.note)}</div><div class="actions">${o.tel?`<a href="tel:${o.tel}">Call</a>`:""}${links(o)}</div></div>`).join("");
  $("#taxi").innerHTML=TAXI.map(t=>`<div class="opt"><div class="name">${esc(t.name)}</div><div class="zh" style="font-size:18px">${esc(t.zh)}</div><div class="actions"><button class="drv" data-zh="${esc(t.zh)}" data-en="${esc(t.name)}">Show driver</button></div></div>`).join("");
  $("#phr").innerHTML=PHR.map(p=>`<div class="zh">${p[0]}</div><div>${esc(p[2])}<div class="say">${esc(p[1])}</div></div>`).join("");
  $("#kv").innerHTML=KV.map(k=>`<dt>${esc(k[0])}</dt><dd>${esc(k[1])}</dd>`).join("")}
@@ -464,6 +478,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.que
  document.addEventListener("visibilitychange",()=>{if(!document.hidden){const d=pickDefaultDay();if(DAYS[d].d===shNow().date)sel=d;renderAll()}});
 })();
 </script>
+
 
 </body>
 </html>
